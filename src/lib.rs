@@ -20,7 +20,7 @@ struct _TextWrapper {
     font_path: String,
     base_character: String,
     font: OwnedFace,
-    base_size: u32,
+    base_size: f64,
 }
 
 impl _TextWrapper {
@@ -30,7 +30,7 @@ impl _TextWrapper {
         let base_measurement = {
             let measure = TTFParserMeasure::new(font.as_face_ref());
             match base_character.wrap_with_position(&WhiteSpaceWordWrap::new(999999, &measure)).next() {
-                Some(CharPosition::Known(p)) => p.width as u32,
+                Some(CharPosition::Known(p)) => p.width as f64,
                 _ => return Err(PyttfWrapError::new_err(format!("Given font does not contain '{}'", base_character))),
             }
         };
@@ -43,9 +43,10 @@ impl _TextWrapper {
         })
     }
 
-    fn wrap(&self, m_characters_in_a_line: u32, text: &str) -> Vec<String> {
+    fn wrap(&self, m_characters_in_a_line: f64, text: &str) -> Vec<String> {
         let measure = TTFParserMeasure::new(self.font.as_face_ref());
-        let word_wrapper = WhiteSpaceWordWrap::new(m_characters_in_a_line * self.base_size, &measure);
+        let max_width = (m_characters_in_a_line * self.base_size).floor() as u32;
+        let word_wrapper = WhiteSpaceWordWrap::new(max_width, &measure);
         return text.wrap(&word_wrapper).map(|s| s.to_string()).collect()
     }
 }
@@ -66,7 +67,7 @@ impl TextWrapper {
 
     /// Returns a list of lines that will result when wrapping `text` using the given font and width. Width is computed to be `line_width` times the width of the `base_character`.
     #[pyo3(text_signature = "(line_width: int, text: str)")]
-    fn wrap(&self, line_width: u32, text: &str) -> Vec<String> {
+    fn wrap(&self, line_width: f64, text: &str) -> Vec<String> {
         self.inner.wrap(line_width, text)
     }
 
