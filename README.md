@@ -23,6 +23,6 @@ Out[3]:
 ### Building
 ```bash
 $ python -m venv .venv
-$ ./venv/bin/pip install maturin
-$ ./venv/bin/maturin build --release
+$ ./.venv/bin/pip install maturin
+$ ./.venv/bin/maturin build --release
 ```
