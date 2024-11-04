@@ -11,7 +11,6 @@ create_exception!(pyttfwrap, PyttfWrapError, PyException);
 
 /// Class to calculate how text will wrap using a given TrueType font and a given available width
 #[pyclass]
-#[pyo3(text_signature = "(file_path: str, base_character: str = '0')")]
 struct TextWrapper {
     inner: Arc<_TextWrapper>
 }
@@ -55,7 +54,7 @@ impl _TextWrapper {
 impl TextWrapper {
     /// Creates a new instance of TextWrapper.
     #[new]
-    #[args(base_character="\"0\"")]
+    #[pyo3(signature = (file_path, base_character = "0"))]
     fn new(file_path: &str, base_character: &str) -> PyResult<Self> {
         if base_character.graphemes(true).count() != 1 {
             return Err(PyValueError::new_err("base_character needs to be exactly 1 character!"))
@@ -66,7 +65,7 @@ impl TextWrapper {
     }
 
     /// Returns a list of lines that will result when wrapping `text` using the given font and width. Width is computed to be `line_width` times the width of the `base_character`.
-    #[pyo3(text_signature = "(line_width: int, text: str)")]
+    #[pyo3(signature = (line_width, text))]
     fn wrap(&self, line_width: f64, text: &str) -> Vec<String> {
         self.inner.wrap(line_width, text)
     }
